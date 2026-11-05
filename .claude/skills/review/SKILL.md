@@ -1,6 +1,6 @@
 ---
 name: review
-model: claude-opus-4-8
+model: claude-opus-5-5
 allowed-tools: Read, Bash
 description: >-
   Architecture and code quality review of uncommitted changes (Step 4 of the

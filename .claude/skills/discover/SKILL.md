@@ -1,6 +1,6 @@
 ---
 name: discover
-model: claude-opus-4-8
+model: claude-opus-5-5
 allowed-tools: Read, Write, AskUserQuestion
 description: >-
   Discover feature rules from a user story using Example Mapping — propose rules,

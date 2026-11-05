@@ -1,6 +1,6 @@
 ---
 name: accept
-model: claude-sonnet-4-6
+model: claude-sonnet-5-5
 allowed-tools: Read, Write, Edit, Bash
 description: >-
   Write a failing acceptance test for the NEXT spec rule (Step 2 of the

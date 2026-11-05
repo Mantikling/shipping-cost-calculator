@@ -1,6 +1,6 @@
 ---
 name: tdd
-model: claude-sonnet-4-6
+model: claude-sonnet-5-5
 allowed-tools: Read, Write, Edit, Bash
 description: >-
   Run ONE TDD inner-loop cycle — RED → GREEN → REFACTOR → CHALLENGE → STOP
