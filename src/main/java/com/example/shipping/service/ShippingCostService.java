@@ -1,5 +1,6 @@
 package com.example.shipping.service;
 
+import com.example.shipping.model.DistanceZone;
 import com.example.shipping.model.ShippingCost;
 import com.example.shipping.model.ShippingRequest;
 import com.example.shipping.model.WeightTier;
@@ -17,9 +18,12 @@ public class ShippingCostService {
     private static final BigDecimal MAX_WEIGHT_KG = new BigDecimal("50");
 
     public ShippingCost calculate(ShippingRequest request) {
+        requireZone(request.zone());
         BigDecimal baseRate = baseRate(request.weightKg());
-        return new ShippingCost(baseRate,
-                new ShippingCost.Breakdown(baseRate, BigDecimal.ONE, baseRate, false));
+        BigDecimal zoneMultiplier = request.zone().multiplier();
+        BigDecimal zonedRate = baseRate.multiply(zoneMultiplier).setScale(2, RoundingMode.HALF_UP);
+        return new ShippingCost(zonedRate,
+                new ShippingCost.Breakdown(baseRate, zoneMultiplier, zonedRate, false));
     }
 
     public BigDecimal baseRate(BigDecimal weightKg) {
@@ -34,6 +38,12 @@ public class ShippingCostService {
                 .filter(tier -> weightKg.compareTo(tier.lowerBound()) >= 0)
                 .max(Comparator.comparing(WeightTier::lowerBound))
                 .orElseThrow(() -> new IllegalStateException("No weight tier for " + weightKg + "kg"));
+    }
+
+    private void requireZone(DistanceZone zone) {
+        if (zone == null) {
+            throw new InvalidZoneException("Destination zone is required");
+        }
     }
 
     private void requireAcceptableWeight(BigDecimal weightKg) {

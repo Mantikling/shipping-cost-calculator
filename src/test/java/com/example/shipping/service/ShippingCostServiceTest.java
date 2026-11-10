@@ -59,6 +59,29 @@ class ShippingCostServiceTest {
         assertThatExceptionOfType(InvalidWeightException.class).isThrownBy(() -> service.baseRate(weightKg));
     }
 
+    @ParameterizedTest(name = "The one where a {0}kg {1} parcel is multiplied by ×{2} to give £{3}")
+    @CsvSource({
+            "3, DOMESTIC,      1.0, 4.99",
+            "3, EUROPEAN,      1.5, 7.49",
+            "3, INTERNATIONAL, 2.5, 12.48",
+    })
+    @DisplayName("Must multiply the weight-tier base rate by the destination zone's multiplier")
+    void zonedRateIsBaseRateTimesZoneMultiplier(
+            BigDecimal weightKg, DistanceZone zone, BigDecimal expectedMultiplier, BigDecimal expectedZonedRate) {
+        ShippingCost cost = service.calculate(new ShippingRequest(weightKg, zone, new BigDecimal("50.00")));
+
+        assertThat(cost.breakdown().zoneMultiplier()).isEqualByComparingTo(expectedMultiplier);
+        assertThat(cost.breakdown().zonedRate()).isEqualByComparingTo(expectedZonedRate);
+    }
+
+    @Test
+    @DisplayName("The one where a parcel with no zone is rejected as invalid. It is not assumed to be domestic")
+    void missingZoneIsRejected() {
+        ShippingRequest request = new ShippingRequest(new BigDecimal("3"), null, new BigDecimal("50.00"));
+
+        assertThatExceptionOfType(InvalidZoneException.class).isThrownBy(() -> service.calculate(request));
+    }
+
     @Test
     @DisplayName("The one where a 25kg domestic parcel is charged its £11.49 base rate, shown in the breakdown")
     void calculateReportsBaseRateInBreakdown() {

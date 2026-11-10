@@ -7,6 +7,7 @@ import static org.mockito.BDDMockito.given;
 import com.example.shipping.model.ShippingCost;
 import com.example.shipping.model.ShippingRequest;
 import com.example.shipping.service.InvalidWeightException;
+import com.example.shipping.service.InvalidZoneException;
 import com.example.shipping.service.ShippingCostService;
 import java.math.BigDecimal;
 import org.assertj.core.api.InstanceOfAssertFactories;
@@ -61,6 +62,22 @@ class ShippingControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         { "weightKg": 0, "zone": "DOMESTIC", "orderTotal": 50.00 }
+                        """)
+                .exchange();
+
+        assertThat(result).hasStatus(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("The one where a missing destination zone is rejected with a 400")
+    void invalidZoneIsMappedToBadRequest() {
+        given(service.calculate(any(ShippingRequest.class)))
+                .willThrow(new InvalidZoneException("Destination zone is required"));
+
+        MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        { "weightKg": 3, "orderTotal": 50.00 }
                         """)
                 .exchange();
 
