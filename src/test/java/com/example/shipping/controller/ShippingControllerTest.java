@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.given;
 
 import com.example.shipping.model.ShippingCost;
 import com.example.shipping.model.ShippingRequest;
+import com.example.shipping.service.InvalidOrderTotalException;
 import com.example.shipping.service.InvalidWeightException;
 import com.example.shipping.service.InvalidZoneException;
 import com.example.shipping.service.ShippingCostService;
@@ -78,6 +79,22 @@ class ShippingControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         { "weightKg": 3, "orderTotal": 50.00 }
+                        """)
+                .exchange();
+
+        assertThat(result).hasStatus(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("The one where an invalid order total is rejected with a 400")
+    void invalidOrderTotalIsMappedToBadRequest() {
+        given(service.calculate(any(ShippingRequest.class)))
+                .willThrow(new InvalidOrderTotalException("Order total must not be negative"));
+
+        MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        { "weightKg": 3, "zone": "DOMESTIC", "orderTotal": -10.00 }
                         """)
                 .exchange();
 

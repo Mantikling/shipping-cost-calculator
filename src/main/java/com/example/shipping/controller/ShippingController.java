@@ -2,6 +2,7 @@ package com.example.shipping.controller;
 
 import com.example.shipping.model.ShippingCost;
 import com.example.shipping.model.ShippingRequest;
+import com.example.shipping.service.InvalidOrderTotalException;
 import com.example.shipping.service.InvalidWeightException;
 import com.example.shipping.service.InvalidZoneException;
 import com.example.shipping.service.ShippingCostService;
@@ -26,7 +27,7 @@ public class ShippingController {
         return service.calculate(request);
     }
 
-    @ExceptionHandler({InvalidWeightException.class, InvalidZoneException.class})
+    @ExceptionHandler({InvalidWeightException.class, InvalidZoneException.class, InvalidOrderTotalException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     void invalidRequest() {
     }

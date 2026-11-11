@@ -16,14 +16,24 @@ public class ShippingCostService {
     private static final BigDecimal SURCHARGE_THRESHOLD_KG = new BigDecimal("20");
     private static final BigDecimal SURCHARGE_PER_KG = new BigDecimal("0.50");
     private static final BigDecimal MAX_WEIGHT_KG = new BigDecimal("50");
+    private static final BigDecimal FREE_SHIPPING_THRESHOLD = new BigDecimal("75.00");
+    private static final BigDecimal FREE_SHIPPING_COST = new BigDecimal("0.00");
 
     public ShippingCost calculate(ShippingRequest request) {
         requireZone(request.zone());
+        requireOrderTotal(request.orderTotal());
         BigDecimal baseRate = baseRate(request.weightKg());
         BigDecimal zoneMultiplier = request.zone().multiplier();
         BigDecimal zonedRate = baseRate.multiply(zoneMultiplier).setScale(2, RoundingMode.HALF_UP);
-        return new ShippingCost(zonedRate,
-                new ShippingCost.Breakdown(baseRate, zoneMultiplier, zonedRate, false));
+        boolean freeShippingApplied = qualifiesForFreeShipping(request);
+        BigDecimal totalCost = freeShippingApplied ? FREE_SHIPPING_COST : zonedRate;
+        return new ShippingCost(totalCost,
+                new ShippingCost.Breakdown(baseRate, zoneMultiplier, zonedRate, freeShippingApplied));
+    }
+
+    private boolean qualifiesForFreeShipping(ShippingRequest request) {
+        return request.zone() == DistanceZone.DOMESTIC
+                && request.orderTotal().compareTo(FREE_SHIPPING_THRESHOLD) >= 0;
     }
 
     public BigDecimal baseRate(BigDecimal weightKg) {
@@ -43,6 +53,15 @@ public class ShippingCostService {
     private void requireZone(DistanceZone zone) {
         if (zone == null) {
             throw new InvalidZoneException("Destination zone is required");
+        }
+    }
+
+    private void requireOrderTotal(BigDecimal orderTotal) {
+        if (orderTotal == null) {
+            throw new InvalidOrderTotalException("Order total is required");
+        }
+        if (orderTotal.signum() < 0) {
+            throw new InvalidOrderTotalException("Order total must not be negative");
         }
     }
 
