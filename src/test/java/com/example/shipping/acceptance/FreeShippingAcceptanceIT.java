@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.assertj.MvcTestResult;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@WithTestApiKeys
 @DisplayName("Free shipping for qualifying domestic orders")
 class FreeShippingAcceptanceIT {
 
@@ -39,6 +40,7 @@ class FreeShippingAcceptanceIT {
                 String weightKg, String orderTotal, String expectedZonedRate,
                 boolean expectedFreeShippingApplied, String expectedTotalCost) {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": %s, "zone": "DOMESTIC", "orderTotal": %s }
@@ -75,6 +77,7 @@ class FreeShippingAcceptanceIT {
                 String weightKg, String zone, String orderTotal,
                 boolean expectedFreeShippingApplied, String expectedTotalCost) {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": %s, "zone": "%s", "orderTotal": %s }
@@ -101,6 +104,7 @@ class FreeShippingAcceptanceIT {
         @DisplayName("The one where a 3kg domestic parcel on a £100.00 order shows base rate £4.99, multiplier ×1.0, zoned rate £4.99, free shipping applied, and total cost £0.00")
         void freeShippingStillShowsEveryStepOfTheBreakdown() {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": 3, "zone": "DOMESTIC", "orderTotal": 100.00 }
@@ -134,6 +138,7 @@ class FreeShippingAcceptanceIT {
         @DisplayName("The one where a 3kg domestic parcel on a £74.99 order shows free shipping not applied and total cost £4.99")
         void belowThresholdShowsFreeShippingNotApplied() {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": 3, "zone": "DOMESTIC", "orderTotal": 74.99 }
@@ -164,6 +169,7 @@ class FreeShippingAcceptanceIT {
         })
         void missingOrderTotalIsRejectedForAnyZone(String zone) {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": 3, "zone": "%s" }
@@ -177,6 +183,7 @@ class FreeShippingAcceptanceIT {
         @DisplayName("The one where an order total of −£10.00 is rejected as invalid")
         void negativeOrderTotalIsRejected() {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": 3, "zone": "DOMESTIC", "orderTotal": -10.00 }
@@ -190,6 +197,7 @@ class FreeShippingAcceptanceIT {
         @DisplayName("The one where a 3kg domestic parcel on a £0.00 order is accepted and costs £4.99")
         void zeroOrderTotalIsAccepted() {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": 3, "zone": "DOMESTIC", "orderTotal": 0.00 }
@@ -212,6 +220,7 @@ class FreeShippingAcceptanceIT {
         @DisplayName("The one where a domestic order total of £74.995 is under £75.00, so it does not qualify and costs £4.99")
         void orderTotalJustUnderThresholdIsNotRoundedUp() {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": 3, "zone": "DOMESTIC", "orderTotal": 74.995 }

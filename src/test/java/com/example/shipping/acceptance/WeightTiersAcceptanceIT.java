@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.assertj.MvcTestResult;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@WithTestApiKeys
 @DisplayName("Weight-based shipping rates")
 class WeightTiersAcceptanceIT {
 
@@ -40,6 +41,7 @@ class WeightTiersAcceptanceIT {
         })
         void baseRateIsFlatPerWeightTierWithLowerBoundInclusive(String weightKg, String expectedBaseRate) {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": %s, "zone": "DOMESTIC", "orderTotal": 50.00 }
@@ -66,6 +68,7 @@ class WeightTiersAcceptanceIT {
         })
         void baseRateAddsFiftyPencePerKgOverTwenty(String weightKg, String expectedBaseRate) {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": %s, "zone": "DOMESTIC", "orderTotal": 50.00 }
@@ -109,6 +112,7 @@ class WeightTiersAcceptanceIT {
 
         private MvcTestResult calculate(String weightKg) {
             return mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": %s, "zone": "DOMESTIC", "orderTotal": 50.00 }
@@ -143,6 +147,7 @@ class WeightTiersAcceptanceIT {
 
         private MvcTestResult calculate(String weightKg) {
             return mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": %s, "zone": "DOMESTIC", "orderTotal": 50.00 }

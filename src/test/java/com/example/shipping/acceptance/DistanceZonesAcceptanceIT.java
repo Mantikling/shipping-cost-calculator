@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.assertj.MvcTestResult;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@WithTestApiKeys
 @DisplayName("Destination zone multipliers")
 class DistanceZonesAcceptanceIT {
 
@@ -37,6 +38,7 @@ class DistanceZonesAcceptanceIT {
         void zonedRateIsBaseRateTimesZoneMultiplier(
                 String weightKg, String zone, String expectedBaseRate, String expectedMultiplier, String expectedZonedRate) {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": %s, "zone": "%s", "orderTotal": 50.00 }
@@ -67,6 +69,7 @@ class DistanceZonesAcceptanceIT {
         @DisplayName("The one where a 25kg international parcel has a base rate of £11.49 (£8.99 + £2.50 surcharge), so it costs £11.49 × 2.5 = £28.73")
         void multiplierAppliesToBaseRateIncludingSurcharge() {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": 25, "zone": "INTERNATIONAL", "orderTotal": 50.00 }
@@ -97,6 +100,7 @@ class DistanceZonesAcceptanceIT {
         @DisplayName("The one where a 0.5kg European parcel is £2.99 × 1.5 = £4.485, which rounds up to £4.49")
         void zonedRateIsRoundedHalfUpToTwoDecimalPlaces() {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": 0.5, "zone": "EUROPEAN", "orderTotal": 50.00 }
@@ -127,6 +131,7 @@ class DistanceZonesAcceptanceIT {
         })
         void zoneNamesAreMatchedIgnoringLetterCase(String zoneGiven, String acceptedAs, String expectedMultiplier) {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": 3, "zone": "%s", "orderTotal": 50.00 }
@@ -149,6 +154,7 @@ class DistanceZonesAcceptanceIT {
         @DisplayName("The one where a parcel to zone \"MARS\" is rejected as invalid")
         void unknownZoneIsRejected() {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": 3, "zone": "MARS", "orderTotal": 50.00 }
@@ -162,6 +168,7 @@ class DistanceZonesAcceptanceIT {
         @DisplayName("The one where a parcel with no zone is rejected as invalid. It is not assumed to be domestic")
         void missingZoneIsRejected() {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": 3, "orderTotal": 50.00 }
@@ -175,6 +182,7 @@ class DistanceZonesAcceptanceIT {
         @DisplayName("The one where a 3kg parcel to \"DOMESTIC\" is accepted and charged £4.99")
         void knownZoneIsAccepted() {
             MvcTestResult result = mvc.post().uri("/api/shipping/calculate")
+                    .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             { "weightKg": 3, "zone": "DOMESTIC", "orderTotal": 50.00 }

@@ -1,6 +1,8 @@
 package com.example.shipping.service;
 
 import com.example.shipping.model.DistanceZone;
+import com.example.shipping.model.FreeShippingRule;
+import com.example.shipping.model.OverweightSurcharge;
 import com.example.shipping.model.ShippingCost;
 import com.example.shipping.model.ShippingRequest;
 import com.example.shipping.model.WeightTier;
@@ -13,10 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ShippingCostService {
 
-    private static final BigDecimal SURCHARGE_THRESHOLD_KG = new BigDecimal("20");
-    private static final BigDecimal SURCHARGE_PER_KG = new BigDecimal("0.50");
     private static final BigDecimal MAX_WEIGHT_KG = new BigDecimal("50");
-    private static final BigDecimal FREE_SHIPPING_THRESHOLD = new BigDecimal("75.00");
     private static final BigDecimal FREE_SHIPPING_COST = new BigDecimal("0.00");
 
     public ShippingCost calculate(ShippingRequest request) {
@@ -32,8 +31,9 @@ public class ShippingCostService {
     }
 
     private boolean qualifiesForFreeShipping(ShippingRequest request) {
-        return request.zone() == DistanceZone.DOMESTIC
-                && request.orderTotal().compareTo(FREE_SHIPPING_THRESHOLD) >= 0;
+        FreeShippingRule rule = FreeShippingRule.CURRENT;
+        return request.zone() == rule.zone()
+                && request.orderTotal().compareTo(rule.minimumOrderTotal()) >= 0;
     }
 
     public BigDecimal baseRate(BigDecimal weightKg) {
@@ -75,6 +75,7 @@ public class ShippingCostService {
     }
 
     private BigDecimal overweightSurcharge(BigDecimal weightKg) {
-        return weightKg.subtract(SURCHARGE_THRESHOLD_KG).max(BigDecimal.ZERO).multiply(SURCHARGE_PER_KG);
+        OverweightSurcharge surcharge = OverweightSurcharge.CURRENT;
+        return weightKg.subtract(surcharge.overKg()).max(BigDecimal.ZERO).multiply(surcharge.perKg());
     }
 }
