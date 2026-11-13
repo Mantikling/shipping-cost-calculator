@@ -32,7 +32,7 @@ public class ShippingCostService {
 
     private boolean qualifiesForFreeShipping(ShippingRequest request) {
         FreeShippingRule rule = FreeShippingRule.CURRENT;
-        return request.zone() == rule.zone()
+        return rule.zones().contains(request.zone())
                 && request.orderTotal().compareTo(rule.minimumOrderTotal()) >= 0;
     }
 

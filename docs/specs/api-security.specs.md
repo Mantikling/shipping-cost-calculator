@@ -35,7 +35,7 @@ The USER → admin rates row is the boundary: the caller is authenticated but no
 
 ### Rule: Must return the current rate card to an ADMIN viewing admin rates
 
-- **Example:** The one where an ADMIN sees weight tiers £2.99 (from 0kg), £4.99 (from 1kg) and £8.99 (from 5kg), a £0.50 per kg surcharge over 20kg, zone multipliers domestic ×1.0, European ×1.5 and international ×2.5, and a domestic free-shipping threshold of £75.00.
+- **Example:** The one where an ADMIN sees weight tiers £2.99 (from 0kg), £4.99 (from 1kg) and £8.99 (from 5kg), a £0.50 per kg surcharge over 20kg, zone multipliers domestic ×1.0, European ×1.5 and international ×2.5, and a free-shipping threshold of £50.00 for domestic and European orders.
 - **Counter-example:** The one where a USER asking for the same rate card gets 403 and no rates.
 
 ---

@@ -35,12 +35,13 @@ class RateCardServiceTest {
     }
 
     @Test
-    @DisplayName("The one where the rate card lists free shipping for domestic orders of £75.00 or more")
+    @DisplayName("The one where the rate card lists free shipping for domestic and European orders of £50.00 or more")
     void rateCardListsTheFreeShippingRule() {
         RateCard rateCard = service.rateCard();
 
-        assertThat(rateCard.freeShipping().zone()).isEqualTo(DistanceZone.DOMESTIC);
-        assertThat(rateCard.freeShipping().minimumOrderTotal()).isEqualByComparingTo("75.00");
+        assertThat(rateCard.freeShipping().zones())
+                .containsExactly(DistanceZone.DOMESTIC, DistanceZone.EUROPEAN);
+        assertThat(rateCard.freeShipping().minimumOrderTotal()).isEqualByComparingTo("50.00");
     }
 
     @Test

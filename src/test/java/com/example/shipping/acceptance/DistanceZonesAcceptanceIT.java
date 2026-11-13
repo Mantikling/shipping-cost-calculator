@@ -103,7 +103,7 @@ class DistanceZonesAcceptanceIT {
                     .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
-                            { "weightKg": 0.5, "zone": "EUROPEAN", "orderTotal": 50.00 }
+                            { "weightKg": 0.5, "zone": "EUROPEAN", "orderTotal": 20.00 }
                             """)
                     .exchange();
 
@@ -185,7 +185,7 @@ class DistanceZonesAcceptanceIT {
                     .header("X-API-Key", TestApiKeys.USER)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
-                            { "weightKg": 3, "zone": "DOMESTIC", "orderTotal": 50.00 }
+                            { "weightKg": 3, "zone": "DOMESTIC", "orderTotal": 20.00 }
                             """)
                     .exchange();
 

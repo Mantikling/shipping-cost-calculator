@@ -2,6 +2,7 @@ package com.example.shipping.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -148,7 +149,7 @@ class ApiSecurityAcceptanceIT {
     class ReturnRateCardToAdmin {
 
         @Test
-        @DisplayName("The one where an ADMIN sees weight tiers £2.99 (from 0kg), £4.99 (from 1kg) and £8.99 (from 5kg), a £0.50 per kg surcharge over 20kg, zone multipliers domestic ×1.0, European ×1.5 and international ×2.5, and a domestic free-shipping threshold of £75.00")
+        @DisplayName("The one where an ADMIN sees weight tiers £2.99 (from 0kg), £4.99 (from 1kg) and £8.99 (from 5kg), a £0.50 per kg surcharge over 20kg, zone multipliers domestic ×1.0, European ×1.5 and international ×2.5, and a free-shipping threshold of £50.00 for domestic and European orders")
         void adminSeesTheCurrentRateCard() {
             MvcTestResult result = mvc.get().uri("/api/admin/rates")
                     .header("X-API-Key", TestApiKeys.ADMIN)
@@ -167,8 +168,8 @@ class ApiSecurityAcceptanceIT {
             assertMoney(result, "$.zoneMultipliers.DOMESTIC", "1.0");
             assertMoney(result, "$.zoneMultipliers.EUROPEAN", "1.5");
             assertMoney(result, "$.zoneMultipliers.INTERNATIONAL", "2.5");
-            assertThat(result).bodyJson().extractingPath("$.freeShipping.zone").isEqualTo("DOMESTIC");
-            assertMoney(result, "$.freeShipping.minimumOrderTotal", "75.00");
+            assertThat(result).bodyJson().extractingPath("$.freeShipping.zones").isEqualTo(List.of("DOMESTIC", "EUROPEAN"));
+            assertMoney(result, "$.freeShipping.minimumOrderTotal", "50.00");
         }
 
         private void assertMoney(MvcTestResult result, String jsonPath, String expected) {

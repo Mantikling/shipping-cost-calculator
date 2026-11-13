@@ -84,7 +84,7 @@ class ShippingCostServiceTest {
 
     @Test
     @DisplayName("The one where a 3kg domestic parcel on a £100.00 order ships free, with the £4.99 zoned rate still shown")
-    void domesticOrderOver75GetsFreeShipping() {
+    void domesticOrderOver50GetsFreeShipping() {
         ShippingCost cost = service.calculate(
                 new ShippingRequest(new BigDecimal("3"), DistanceZone.DOMESTIC, new BigDecimal("100.00")));
 
@@ -95,15 +95,18 @@ class ShippingCostServiceTest {
 
     @ParameterizedTest(name = "The one where a {0} order of £{1} has free shipping applied {2} and costs £{3}")
     @CsvSource({
-            "DOMESTIC,      75.00,  true,  0.00",
-            "DOMESTIC,      74.99,  false, 4.99",
-            "DOMESTIC,      74.995, false, 4.99",
+            "DOMESTIC,      50.00,  true,  0.00",
+            "DOMESTIC,      49.99,  false, 4.99",
+            "DOMESTIC,      49.995, false, 4.99",
             "DOMESTIC,      0.00,   false, 4.99",
-            "EUROPEAN,      500.00, false, 7.49",
+            "EUROPEAN,      500.00, true,  0.00",
+            "EUROPEAN,      50.00,  true,  0.00",
+            "EUROPEAN,      49.99,  false, 7.49",
             "INTERNATIONAL, 500.00, false, 12.48",
+            "INTERNATIONAL, 50.00,  false, 12.48",
     })
-    @DisplayName("Must make shipping free only for a domestic order whose total is £75.00 or more, compared exactly")
-    void freeShippingAppliesOnlyToDomesticOrdersOfAtLeast75(
+    @DisplayName("Must make shipping free only for a domestic or European order whose total is £50.00 or more, compared exactly")
+    void freeShippingAppliesOnlyToDomesticAndEuropeanOrdersOfAtLeast50(
             DistanceZone zone, BigDecimal orderTotal, boolean expectedFreeShipping, BigDecimal expectedTotalCost) {
         ShippingCost cost = service.calculate(new ShippingRequest(new BigDecimal("3"), zone, orderTotal));
 
@@ -137,7 +140,7 @@ class ShippingCostServiceTest {
     @DisplayName("The one where a 25kg domestic parcel is charged its £11.49 base rate, shown in the breakdown")
     void calculateReportsBaseRateInBreakdown() {
         ShippingCost cost = service.calculate(
-                new ShippingRequest(new BigDecimal("25"), DistanceZone.DOMESTIC, new BigDecimal("50.00")));
+                new ShippingRequest(new BigDecimal("25"), DistanceZone.DOMESTIC, new BigDecimal("20.00")));
 
         assertThat(cost.breakdown().baseRate()).isEqualByComparingTo("11.49");
         assertThat(cost.totalCost()).isEqualByComparingTo("11.49");
